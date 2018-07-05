@@ -135,6 +135,7 @@ class Client(threading.local):
     _FLAG_LONG = 1 << 2
     _FLAG_COMPRESSED = 1 << 3
     _FLAG_TEXT = 1 << 4
+    _FLAG_BYTE_ARRAY = 1 << 5
 
     _SERVER_RETRIES = 10  # how many times to try finding a free server.
 
@@ -979,6 +980,9 @@ class Client(threading.local):
                 val = val.encode('ascii')
             # force no attempt to compress this silly string.
             min_compress_len = 0
+        elif isinstance(val, bytearray):
+            flags |= Client._FLAG_BYTE_ARRAY
+            val = bytes(val)
         else:
             flags |= Client._FLAG_PICKLE
             file = BytesIO()
@@ -1278,6 +1282,8 @@ class Client(threading.local):
             except Exception as e:
                 self.debuglog('Pickle error: %s\n' % e)
                 return None
+        elif flags & Client._FLAG_BYTE_ARRAY:
+            val = bytearray(buf)
         else:
             self.debuglog("unknown flags on get: %x\n" % flags)
             raise ValueError('Unknown flags on get: %x' % flags)
