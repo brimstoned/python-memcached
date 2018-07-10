@@ -163,6 +163,10 @@ class TestMemcache(unittest.TestCase):
         self.assertEqual(compressed_value, compressed_result)
         self.assertEqual(value, zlib.decompress(compressed_result).decode())
 
+    def test_setget_bytearray(self):
+        val = bytearray(b'a string')
+        self.check_setget("bytearray", val)
+
     def test_ignore_too_large_value(self):
         # NOTE: "MemCached: while expecting[...]" is normal...
         key = 'keyhere'
